@@ -113,6 +113,7 @@ class UpscaleFactory(protocol.ClientFactory):
         reactor.stop()
 
 class Event(object):
+    global app
     def __init__(self):
         self.protocol=None
     def setp(self,p):
@@ -168,28 +169,41 @@ class Event(object):
             reactor.callLater((not seen_events) and 0.010, self.event_handle)
 
 
-if len(sys.argv)>1:
-    app = sys.argv[1]
-    os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" wine explorer /desktop=name,1280x720 "+app+ " > /dev/null 2>&1 &")
-    # subprocess.call(["xvfb-run","-l","--server-args=\"-screen 0 1280x720x24\"","wine","explorer","/desktop=name,1280x720",app])
-    time.sleep(2)
-os.system("x11vnc -display :99  > /dev/null 2>&1 &")
-# subprocess.call('x11vnc','-display',':99')
-time.sleep(1)
-#TODO
-#fullscreen
-#moar res
-#moar algo
-pygame.init()
-display = pygame.Surface((1280,720))
-screen = pygame.display.set_mode((2560,1600), DOUBLEBUF, 32)
-screen.fill(0)
-pygame.display.update()
-s = shaders.Shader(1280,720)
-v = Event()
-application = service.Application("rfb test") # create Application
-vncClient = internet.TCPClient('localhost', 5900, UpscaleFactory(v)) # create the service
-vncClient.setServiceParent(application)
-vncClient.startService()
-reactor.callLater(0.1, v.event_handle)
-reactor.run()
+def main():
+    global screen,s,display,app
+    if len(sys.argv)>1:
+        app = sys.argv[1]
+        os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" wine explorer /desktop=name,1280x720 "+app+ " > /dev/null 2>&1 &")
+        # subprocess.call(["xvfb-run","-l","--server-args=\"-screen 0 1280x720x24\"","wine","explorer","/desktop=name,1280x720",app])
+        time.sleep(2)
+
+    os.system("x11vnc -display :99  > /dev/null 2>&1 &")
+    # subprocess.call('x11vnc','-display',':99')
+    time.sleep(1)
+    #TODO
+    #fullscreen
+    #moar res
+    #moar algo
+    pygame.init()
+    display = pygame.Surface((1280,720))
+    screen = pygame.display.set_mode((2560,1440), DOUBLEBUF, 32)
+    screen.fill(0)
+    pygame.display.update()
+    s = shaders.Shader(1280,720)
+    v = Event()
+    application = service.Application("rfb test") # create Application
+    vncClient = internet.TCPClient('localhost', 5900, UpscaleFactory(v)) # create the service
+    vncClient.setServiceParent(application)
+    vncClient.startService()
+    reactor.callLater(0.1, v.event_handle)
+    reactor.run()
+if __name__ == '__main__':
+    main()
+'''
+cvt 1280 720                                             
+xrandr --newmode "1280x720_60.00"   74.50  1280 1344 1472 1664  720 723 728 748 -hsync +vsync
+xrandr --addmode DisplayPort-0 1280x720_60.00 --output DisplayPort-0 --mode 1280x720_60.00 --right-of eDP                                                                                                                                                                                  ──(Tue,Oct27)─┘
+x11vnc -display :0 -clip 1280x720+2560+0 -xrandr -forever -nonc -noxdamage -repeat 
+
+xrandr --auto
+'''
