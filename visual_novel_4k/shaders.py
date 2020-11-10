@@ -25,9 +25,9 @@ class Shader():
         '''
         #version 430
 
-        layout (local_size_x = 16, local_size_y = 16) in;
+        layout (local_size_x = 32, local_size_y = 24) in;
         layout(rgba8, binding=0) readonly uniform image2D inTex;
-        layout(rgba16f, binding=1) writeonly uniform image2D destTex;
+        layout(rgba8, binding=1) writeonly uniform image2D destTex;
         layout(binding = 20) buffer pos
         {
             ivec2 p;
@@ -58,8 +58,8 @@ class Shader():
         '''
         #version 430
 
-        layout (local_size_x = 16, local_size_y = 16) in;
-        layout(rgba16f, binding='''+str(len(glsl)+1)+''') uniform image2D inTex;
+        layout (local_size_x = 32, local_size_y = 24) in;
+        layout(rgba8, binding='''+str(len(glsl)+1)+''') uniform image2D inTex;
         layout(rgba8, binding='''+str(len(glsl)+2)+''') uniform image2D destTex;
 
         #define Kb 0.0722
@@ -80,8 +80,8 @@ class Shader():
         if width==0:
             width=self.width
             height=self.height
-        W,H = int(np.ceil(width/16)),int(np.ceil(height/16))
-        W2,H2 = int(np.ceil(width/8)),int(np.ceil(height/8))
+        W,H = int(np.ceil(width/32)),int(np.ceil(height/24))
+        W2,H2 = int(np.ceil(width/16)),int(np.ceil(height/12))
         for a in self.shader_list[:-1]:
             a.run(W,H,1)
         self.shader_list[-1].run(W2,H2,1)

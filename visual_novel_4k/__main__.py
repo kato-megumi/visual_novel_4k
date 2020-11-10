@@ -93,8 +93,13 @@ class Upscale(RFBClient):
         )
     def commitUpdate(self, rectangles = None):
         """finish series of display updates"""
-        screen.blit(pygame.image.fromstring(s.apply(display.get_view('1')),(2560,1440),'RGBX'),(0,0))
+        # n = time.time()
+        i = pygame.image.fromstring(s.apply(display.get_view('1')),(2560,1440),'RGBX')
+        screen.blit(i,(0,0))
+        # print(time.time()-n,end='\t')
+        # n = time.time()
         pygame.display.update([tuple(y*2 for y in x) for x in rectangles])
+        # print(time.time()-n)
         self.framebufferUpdateRequest(incremental=1)
 
 class UpscaleFactory(protocol.ClientFactory):
@@ -109,7 +114,7 @@ class UpscaleFactory(protocol.ClientFactory):
         reactor.stop()
 
 class Event(object):
-    global app
+    global app,screen
     def __init__(self):
         self.protocol=None
     def setp(self,p):
@@ -134,11 +139,19 @@ class Event(object):
                         self.protocol.keyEvent(KEYMAPPINGS[e.key])
                     elif e.unicode:
                         self.protocol.keyEvent(ord(e.unicode))
+                        time.sleep(0.01)
+                        self.protocol.keyEvent(ord(e.unicode), down=0)
                     else:
                         print("warning: unknown key %r" % (e))
                 elif e.type == KEYUP:
                     if e.key in MODIFIERS:
                         self.protocol.keyEvent(MODIFIERS[e.key], down=0)
+                    elif e.key in KEYMAPPINGS:
+                        self.protocol.keyEvent(KEYMAPPINGS[e.key], down=0)
+                    else:
+                        key = pygame.key.name(e.key)
+                        if len(key)==1: self.protocol.keyEvent(ord(key), down=0)
+                        if len(key)=="space": self.protocol.keyEvent(ord(" "), down=0)
                     #~ else:
                         #~ print "unknown key %r" % (e)
                 elif e.type == MOUSEMOTION:
@@ -155,22 +168,42 @@ class Event(object):
                     if e.button == 5: buttons &= ~16
                     self.protocol.pointerEvent(int(e.pos[0]/2), int(e.pos[1]/2), buttons)
                 elif e.type == MOUSEBUTTONDOWN:
+                    scroll = 0
                     if e.button == 1: buttons |= 1
                     if e.button == 2: buttons |= 2
                     if e.button == 3: buttons |= 4
-                    if e.button == 4: buttons |= 8
-                    if e.button == 5: buttons |= 16
+                    if e.button == 4: buttons |= 8 ;scroll=1
+                    if e.button == 5: buttons |= 16;scroll=1
                     self.protocol.pointerEvent(int(e.pos[0]/2), int(e.pos[1]/2), buttons)
+                    if scroll==1: 
+                        buttons &= ~8
+                        buttons &= ~16
+                        self.protocol.pointerEvent(int(e.pos[0]/2), int(e.pos[1]/2), buttons)
+                elif e.type == ACTIVEEVENT:
+                    if e.gain ==1:
+                        self.protocol.framebufferUpdateRequest()
+                        pygame.display.update()
+        pygame.event.clear()
         if alive:
-            reactor.callLater((not seen_events) and 0.010, self.event_handle)
-
+            # reactor.callLater(0, self.event_handle)
+            reactor.callLater((not seen_events) and 0.020, self.event_handle)
 
 def main():
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("-d","--display",type='int',dest='display',default=720, help='original width')
+    parser.add_option("-s","--screen" ,type='int',dest='screen' ,default=1440,help='upscaled width')
+    parser.add_option("-o",dest='old' ,action='store_true',default=False,help='For 3:4 game')
+    parser.add_option("-v",dest='vgl' ,action='store_true',default=False,help='Use virtualgl')
+    opt,arg = parser.parse_args()
     global screen,s,display,app
-    if len(sys.argv)>1:
-        app = sys.argv[1]
-        os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" wine explorer /desktop=name,1280x720 "+app+ " > /dev/null 2>&1 &")
-        # subprocess.call(["xvfb-run","-l","--server-args=\"-screen 0 1280x720x24\"","wine","explorer","/desktop=name,1280x720",app])
+    if len(arg)>0:
+        app = arg[0]
+        if opt.vgl:
+            os.system("VGL_FORCEALPHA=1 VGL_DRAWABLE=pixmap xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" vglrun wine explorer /desktop=name,1280x720 "+app+ " &")
+        else:
+            os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" wine explorer /desktop=name,1280x720 "+app+ " &")
+            # os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" vglrun wine explorer /desktop=name,1280x720 "+app+ " > /dev/null 2>&1 &")
         time.sleep(2)
     else:
         app = ""
@@ -183,7 +216,7 @@ def main():
     #moar algo
     pygame.init()
     display = pygame.Surface((1280,720))
-    screen = pygame.display.set_mode((2560,1440), DOUBLEBUF, 32)
+    screen = pygame.display.set_mode((2560,1600), DOUBLEBUF| NOFRAME, 32)
     screen.fill(0)
     pygame.display.update()
     s = Shader(1280,720)
@@ -199,7 +232,8 @@ if __name__ == '__main__':
 '''
 cvt 1280 720                                             
 xrandr --newmode "1280x720_60.00"   74.50  1280 1344 1472 1664  720 723 728 748 -hsync +vsync
-xrandr --addmode DisplayPort-0 1280x720_60.00 --output DisplayPort-0 --mode 1280x720_60.00 --right-of eDP                                                                                                                                                                                  ──(Tue,Oct27)─┘
+xrandr --addmode DisplayPort-1 1280x720_60.00
+xrandr --addmode DisplayPort-0 1280x720_60.00 --output DisplayPort-0 --mode 1280x720_60.00 --right-of eDP
 x11vnc -display :0 -clip 1280x720+2560+0 -xrandr -forever -nonc -noxdamage -repeat 
 
 xrandr --auto

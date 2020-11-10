@@ -1,7 +1,7 @@
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=1)  uniform image2D inTex;
-layout(rgba16f, binding=2)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=1)  uniform image2D inTex;
+layout(rgba8, binding=2)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -29,9 +29,9 @@ void main() {
 //!COMPONENTS 4
 //!BIND LUMAN0
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=2)  uniform image2D inTex;
-layout(rgba16f, binding=3)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=2)  uniform image2D inTex;
+layout(rgba8, binding=3)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -112,9 +112,9 @@ void main() {
 //!BIND LUMAN1
 //!SAVE LUMAN2
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=3)  uniform image2D inTex;
-layout(rgba16f, binding=4)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=3)  uniform image2D inTex;
+layout(rgba8, binding=4)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -196,9 +196,9 @@ void main() {
 //!SAVE LUMAN3
 
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=4)  uniform image2D inTex;
-layout(rgba16f, binding=5)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=4)  uniform image2D inTex;
+layout(rgba8, binding=5)  uniform image2D destTex;
 
 void main() {
 		ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -278,9 +278,9 @@ void main() {
 //!BIND LUMAN3
 //!SAVE LUMAN4
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=5)  uniform image2D inTex;
-layout(rgba16f, binding=6)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=5)  uniform image2D inTex;
+layout(rgba8, binding=6)  uniform image2D destTex;
 
 void main() {
 		ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -362,9 +362,9 @@ void main() {
 //!SAVE LUMAN5
 
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=6)  uniform image2D inTex;
-layout(rgba16f, binding=7)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=6)  uniform image2D inTex;
+layout(rgba8, binding=7)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -446,9 +446,9 @@ void main() {
 //!SAVE LUMAN6
 
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=7)  uniform image2D inTex;
-layout(rgba16f, binding=8)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=7)  uniform image2D inTex;
+layout(rgba8, binding=8)  uniform image2D destTex;
 
 void main() {
 		ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -528,9 +528,9 @@ void main() {
 //!BIND LUMAN6
 //!SAVE LUMAN7
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=8)  uniform image2D inTex;
-layout(rgba16f, binding=9)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=8)  uniform image2D inTex;
+layout(rgba8, binding=9)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -611,9 +611,9 @@ void main() {
 //!BIND LUMAN7
 //!SAVE LUMAN8
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=9)  uniform image2D inTex;
-layout(rgba16f, binding=10)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=9)  uniform image2D inTex;
+layout(rgba8, binding=10)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -695,9 +695,9 @@ void main() {
 //!SAVE LUMAN9
 
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=10)  uniform image2D inTex;
-layout(rgba16f, binding=11)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=10)  uniform image2D inTex;
+layout(rgba8, binding=11)  uniform image2D destTex;
 
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
@@ -785,17 +785,17 @@ void main() {
 //!BIND LUMAN9
 //!SAVE LUMAN0
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=3)  uniform image2D inTex1;
-layout(rgba16f, binding=4)  uniform image2D inTex2;
-layout(rgba16f, binding=5)  uniform image2D inTex3;
-layout(rgba16f, binding=6)  uniform image2D inTex4;
-layout(rgba16f, binding=7)  uniform image2D inTex5;
-layout(rgba16f, binding=8)  uniform image2D inTex6;
-layout(rgba16f, binding=9)  uniform image2D inTex7;
-layout(rgba16f, binding=10)  uniform image2D inTex8;
-layout(rgba16f, binding=11)  uniform image2D inTex9;
-layout(rgba16f, binding=12)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=3)  uniform image2D inTex1;
+layout(rgba8, binding=4)  uniform image2D inTex2;
+layout(rgba8, binding=5)  uniform image2D inTex3;
+layout(rgba8, binding=6)  uniform image2D inTex4;
+layout(rgba8, binding=7)  uniform image2D inTex5;
+layout(rgba8, binding=8)  uniform image2D inTex6;
+layout(rgba8, binding=9)  uniform image2D inTex7;
+layout(rgba8, binding=10)  uniform image2D inTex8;
+layout(rgba8, binding=11)  uniform image2D inTex9;
+layout(rgba8, binding=12)  uniform image2D destTex;
 void main() {
 	ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
 	vec4 a = imageLoad(inTex1,pt);
@@ -842,10 +842,10 @@ void main() {
 //!DESC Anime4K-v3.1-Upscale(x2)-CNN(L)
 
 #version 430
-layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba16f, binding=1)  uniform image2D org;
-layout(rgba16f, binding=12)  uniform image2D inTex;
-layout(rgba16f, binding=13)  uniform image2D destTex;
+layout (local_size_x = 32, local_size_y = 24) in;
+layout(rgba8, binding=1)  uniform image2D org;
+layout(rgba8, binding=12)  uniform image2D inTex;
+layout(rgba8, binding=13)  uniform image2D destTex;
 #define get(a,b) imageLoad(org,pt+ivec2(a,b)).x
 void main()
 {
