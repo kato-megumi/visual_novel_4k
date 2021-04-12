@@ -8,4 +8,4 @@ Requirement:
         pip install -r requirements.txt
 
 Usage:
-    ```__main__.py [game]```
+    ```vn4k.py [game]```
