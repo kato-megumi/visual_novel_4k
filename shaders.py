@@ -47,10 +47,13 @@ class Shader():
         '''
         #version 430
 
-        layout (local_size_x = 32, local_size_y = 24) in;
+        layout (local_size_x = 16, local_size_y = 16) in;
         layout(rgba8, binding=30) readonly uniform image2D inTex;
         layout(rgba16f, binding=1) writeonly uniform image2D destTex;
-
+        layout(binding = 40) buffer pos
+        {
+            ivec4 p;
+        };
         #define Kb 0.0722
         #define Kr 0.2126
         #define Kg 1.0 - Kr - Kb
@@ -58,6 +61,7 @@ class Shader():
         #define InvYUV(yuv)   ( mat3(1,1,1,0,-0.21482,2.12798,1.28033,-0.38059,0)*yuv )
         void main() {
             ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
+            if ((pt.x < p.x) || (pt.y < p.y) || (pt.x > p.z) || pt.y > p.w) return;
             vec3 yuv = YUV(imageLoad(inTex,pt).bgr);
             imageStore(destTex,pt,vec4(yuv,1));
         }'''))
@@ -69,10 +73,13 @@ class Shader():
         '''
         #version 430
 
-        layout (local_size_x = 32, local_size_y = 24) in;
+        layout (local_size_x = 16, local_size_y = 16) in;
         layout(rgba16f, binding='''+str(tex_num)+''') uniform image2D inTex;
         layout(rgba8, binding='''+str(tex_num+1)+''') uniform image2D destTex;
-
+        layout(binding = 40) buffer pos
+        {
+            ivec4 p;
+        };
         #define Kb 0.0722
         #define Kr 0.2126
         #define Kg 1.0 - Kr - Kb
@@ -80,6 +87,7 @@ class Shader():
         #define InvYUV(yuv)   ( mat3(1,1,1,0,-0.21482,2.12798,1.28033,-0.38059,0)*yuv )
         void main() {
             ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
+            if ((pt.x < p.x*2) || (pt.y < p.y*2) || (pt.x > p.z*2) || pt.y > p.w*2) return;
             vec3 rgb = InvYUV(imageLoad(inTex,pt).rgb);
             imageStore(destTex,pt,vec4(rgb,1));
         }'''))
@@ -150,7 +158,7 @@ class Shader():
         }
 
         void main() {
-        f_color = textureBicubic(Texture,v_text).rgb;
+        f_color = texture(Texture,v_text).rgb;
         }
         ''')
 
@@ -164,11 +172,15 @@ class Shader():
         ]
         self.vao = ctx.vertex_array(prog, vao_content, ibo)
         
-    def apply(self):
+        self.buffer = context.buffer(reserve=16)
+        self.buffer.bind_to_storage_buffer(40)
+        
+    def apply(self,bound):
         width=self.width
         height=self.height
-        W,H = int(np.ceil(width/32)),int(np.ceil(height/24))
-        W2,H2 = int(np.ceil(width/32*self.scale)),int(np.ceil(height/24*self.scale))
+        self.buffer.write(struct.pack("<4I", *bound))
+        W,H = int(np.ceil(width/16)),int(np.ceil(height/16))
+        W2,H2 = int(np.ceil(width/16*self.scale)),int(np.ceil(height/16*self.scale))
         for a in self.shader_list[:-1]:
             a.run(W,H,1)
         self.shader_list[-1].run(W2,H2,1)

@@ -2,6 +2,10 @@
 layout (local_size_x = 32, local_size_y = 24) in;
 layout(rgba8, binding=0)  uniform image2D inTex;
 layout(rgba8, binding=30)  uniform image2D destTex;
+layout(binding = 40) buffer pos
+{
+    ivec4 p;
+};
 // GLSL debanding shader, use as: source-shader=path/to/deband.glsl
 // (Loosely based on flash3kyuu_deband, but expanded to multiple iterations)
 
@@ -9,7 +13,7 @@ layout(rgba8, binding=30)  uniform image2D destTex;
 // The threshold of difference below which a pixel is considered to be part of
 // a gradient. Higher = more debanding, but setting it too high diminishes image
 // details.
-#define THRESHOLD 128
+#define THRESHOLD 64
 
 // The range (in source pixels) at which to sample for neighbours. Higher values
 // will find more gradients, but lower values will deband more aggressively.
@@ -25,7 +29,7 @@ layout(rgba8, binding=30)  uniform image2D destTex;
 // (Optional) Add some extra noise to the image. This significantly helps cover
 // up remaining banding and blocking artifacts, at comparatively little visual
 // quality. Higher = more grain. Setting it to 0 disables the effect.
-#define GRAIN 24
+#define GRAIN 0
 
 // Note: If performance is too slow, try eg. RANGE=16 ITERATIONS=2. In general,
 // an increase in the number of ITERATIONS should roughly correspond to a
@@ -53,6 +57,7 @@ void main() {
     // Initialize the PRNG by hashing the position + a random uniform
     float h;
     ivec2 pt = ivec2(gl_GlobalInvocationID.xy);
+    if ((pt.x < p.x) || (pt.y < p.y) || (pt.x > p.z) || pt.y > p.w) return;
     vec3 m = vec3(pt, 8.8) + vec3(1.0);
     h = permute(permute(permute(m.x)+m.y)+m.z);
     // Sample the source pixel

@@ -97,7 +97,10 @@ class Upscale(RFBClient):
     def commitUpdate(self, rectangles = None):
         """finish series of display updates"""
         self.framebufferUpdateRequest(incremental=1)
-        s.apply()
+        if (len(rectangles) == 0): return
+        bound = [min([a for (a,b,c,d) in rectangles]),min([b for (a,b,c,d) in rectangles]),max([a+c for (a,b,c,d) in rectangles]),max([b+d for (a,b,c,d) in rectangles])]
+        area = (bound[2]-bound[0])*(bound[3]-bound[1])
+        s.apply(bound)
         pygame.display.flip()
         clock.tick()
         print(clock.get_fps(),end="\r")
@@ -129,7 +132,7 @@ class Event(object):
             if e.type == QUIT:
                 alive = 0
                 app_name = app.split('/')[-1]
-                os.system("killall -9 `pgrep -i xvfb`")
+                os.system("kill -9 `pgrep -i xvfb`")
                 os.system("kill -9 `pgrep "+app_name+"`")
                 os.system("killall "+app_name)
                 print(app)
@@ -217,11 +220,10 @@ def main():
             os.system(f"DISPLAY=:1 VGL_FORCEALPHA=1 VGL_DRAWABLE=pixmap vglrun wine explorer /desktop=name,{w}x{h} "+app+ " &")
             print("Use vgl")
             # os.system(f"VGL_FORCEALPHA=1 VGL_DRAWABLE=pixmap xvfb-run  -l --server-args=\"-screen 0 {w}x{h}x24\" vglrun wine explorer /desktop=name,{w}x{h} "+app+ " &")
-            os.system("x11vnc -grow 100 -fs 0 -nocursor -display :1  > /dev/null 2>&1 &")
+            os.system("x11vnc -fs 0.9 -nocursor -display :1  > /dev/null 2>&1 &")
+#            os.system("x0vncserver -display=:1 -localhost -SecurityTypes none > /dev/null 2>&1 &")
         else:
-            # os.system(f"DISPLAY=:1 wine explorer /desktop=name,{w}x{h} "+app+ " &")
             os.system(f"xvfb-run  -l --server-args=\"-screen 0 {w}x{h}x24\" wine explorer /desktop=name,{w}x{h} "+app+ " &")
-            # os.system("xvfb-run  -l --server-args=\"-screen 0 1280x720x24\" vglrun wine explorer /desktop=name,1280x720 "+app+ " > /dev/null 2>&1 &")
             os.system("x11vnc -nocursor -display :99  > /dev/null 2>&1 &")
         time.sleep(2)
     else:
@@ -232,14 +234,14 @@ def main():
     # subprocess.call('x11vnc','-display',':99')
     time.sleep(1)
     pygame.init()
-
+#    pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
     screen = pygame.display.set_mode((uw,uh), DOUBLEBUF| NOFRAME | OPENGL, 32)
 
     ctx = moderngl.create_context()
     if opt.fsrcnnx3:
         s = Shader(w,h,ctx,algo="/fsrcnnx3.glsl",scale=3)
     else:
-        s = Shader(w,h,ctx)
+        s = Shader(w,h,ctx,algo="/A4K_L_x2_denoise.glsl")
     v = Event()
     application = service.Application("rfb test") # create Application
     vncClient = internet.TCPClient('localhost', 5900, UpscaleFactory(v)) # create the service
