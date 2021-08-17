@@ -1,9 +1,8 @@
-#!/usr/bin/python3.8
 # from rfb import RFBClient, RFBFactory
 from twisted.python import usage, log
 from twisted.internet import protocol,reactor
 from twisted.application import internet, service
-from shaders import Shader
+from enlarge import Shader
 from rfb import *
 import sys,os
 import time 
@@ -205,8 +204,7 @@ def main():
     parser.add_option("-s","--screen" ,type='int',dest='screen' ,default=1440,help='upscaled width')
     parser.add_option("-o",dest='old' ,action='store_true',default=False,help='For 3:4 game')
     parser.add_option("-v",dest='vgl' ,action='store_true',default=False,help='Use virtualgl')
-    parser.add_option("-f",dest='fsrcnnx3' ,action='store_true',default=False,help='Use fsrcnnx3')
-    # parser.add_option("-w",dest='window' ,action='store_true',default=False,help='windows mode')
+    parser.add_option("-f",dest='x4' ,action='store_true',default=False,help='Upscale 2nd time')
     opt,arg = parser.parse_args()
     h = opt.display
     w = int(h/3*4) if opt.old else int(h/9*16)
@@ -219,29 +217,22 @@ def main():
             os.system(f"Xvfb :1 -screen 0 {w}x{h}x24 &")
             os.system(f"DISPLAY=:1 VGL_FORCEALPHA=1 VGL_DRAWABLE=pixmap vglrun wine explorer /desktop=name,{w}x{h} "+app+ " &")
             print("Use vgl")
-            # os.system(f"VGL_FORCEALPHA=1 VGL_DRAWABLE=pixmap xvfb-run  -l --server-args=\"-screen 0 {w}x{h}x24\" vglrun wine explorer /desktop=name,{w}x{h} "+app+ " &")
             os.system("x11vnc -fs 0.9 -nocursor -display :1  > /dev/null 2>&1 &")
-#            os.system("x0vncserver -display=:1 -localhost -SecurityTypes none > /dev/null 2>&1 &")
         else:
             os.system(f"xvfb-run  -l --server-args=\"-screen 0 {w}x{h}x24\" wine explorer /desktop=name,{w}x{h} "+app+ " &")
             os.system("x11vnc -nocursor -display :99  > /dev/null 2>&1 &")
         time.sleep(2)
     else:
         app = ""
-        # exit()
-    # os.system("x11vnc -nocursor -display :1  > /dev/null 2>&1 &")
-    # os.system("x11vnc -nocursor -multiptr -display :99  > /dev/null 2>&1 &")
-    # subprocess.call('x11vnc','-display',':99')
     time.sleep(1)
     pygame.init()
-#    pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
     screen = pygame.display.set_mode((uw,uh), DOUBLEBUF| NOFRAME | OPENGL, 32)
 
     ctx = moderngl.create_context()
-    if opt.fsrcnnx3:
-        s = Shader(w,h,ctx,algo="/fsrcnnx3.glsl",scale=3)
+    if opt.x4:
+        s = Shader(w,h,ctx,algos=['yuv.glsl','ACNet.glsl','shaders/Anime4K_Upscale_CNN_M_x2_Denoise.glsl','rgb.glsl'])
     else:
-        s = Shader(w,h,ctx,algo="/A4K_L_x2_denoise.glsl")
+        s = Shader(w,h,ctx)
     v = Event()
     application = service.Application("rfb test") # create Application
     vncClient = internet.TCPClient('localhost', 5900, UpscaleFactory(v)) # create the service

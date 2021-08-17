@@ -4,15 +4,13 @@ import numpy as np
 import time, struct,os
 
 class Shader():
-    def __init__(self, width, height,ctx,algo='/Anime4K_Upscale_CNN_L_x2.glsl',scale=2):
+    def __init__(self, width, height,ctx,algo='/Anime4K_Upscale_CNN_M_x2_Deblur.glsl',scale=2):
         d = os.path.dirname(os.path.realpath(__file__))
         self.width = width
         self.height = height
         self.scale = scale
         context = ctx
-        # context = moderngl.create_standalone_context(require=430)
 
-        #deband shader 
         with open(d+"/deband.glsl", 'r') as fp:
             deband_glsl = fp.read()
 
@@ -184,7 +182,9 @@ class Shader():
         for a in self.shader_list[:-1]:
             a.run(W,H,1)
         self.shader_list[-1].run(W2,H2,1)
-        self.tex_list[-1].use()
+    
+    def a(self)
+        self.tex_list[0].use()
         self.vao.render()
 
 
