@@ -8,7 +8,7 @@ class Program():
         if index not in self.in_text: 
             self.in_text.append(index)
     def add_content(self, line):
-        self.content+=line.replace('HOOKED',"LUMA")
+        self.content+=line.replace('HOOKED',"LUMA").replace('MAIN',"LUMA")
     def set_out(self, index):
         self.out_text = index
 class Parser():
@@ -34,18 +34,19 @@ class Parser():
 
                 if line[:3] == "//!":
                     tex_name = line.split()[1]
+                    if tex_name == 'MAIN' : tex_name = "LUMA" 
                     if not new_prog:
                         new_prog=True
                         if program != None: self.prog_list.append(program)
                         program = Program()
                     if line[3:7] == "BIND":
                         program.add_in(self.texture_name_list.index(tex_name))
-                    elif line[3:7] == "HEIG":
+                    elif line[3:7] == "HEIG" and "2 *" in line:
                         self.double = True
-                    elif line[3:7] == "QUAL":
-                        self.highQ = True
-                    elif line[3:7] == "COPY":
-                        self.copy = True
+                    # elif line[3:7] == "QUAL":
+                    #     self.highQ = True
+                    # elif line[3:7] == "COPY":
+                    #     self.copy = True
                     elif line[3:7] == "SAVE":
                         if tex_name not in self.texture_name_list:
                             self.texture_name_list.append(tex_name)
@@ -61,4 +62,9 @@ class Parser():
             a.out_text = a.out_text-2
         self.texture_name_list = self.texture_name_list[1:]
         self.prog_list[-1].set_out(len(self.texture_name_list)-1)
+
+        # print(self.texture_name_list)
+        # for x in self.prog_list:
+        #     print(x.in_text,x.out_text)
+
         

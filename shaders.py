@@ -183,7 +183,7 @@ class Shader():
             a.run(W,H,1)
         self.shader_list[-1].run(W2,H2,1)
     
-    def a(self)
+    def a(self):
         self.tex_list[0].use()
         self.vao.render()
 
@@ -223,4 +223,4 @@ def test(q=560,w=160):
     img_out = Image.frombytes("RGBA",size2,a).convert("RGB")
     img_out.show()
 if __name__ == '__main__':
-    test()
+    test2()

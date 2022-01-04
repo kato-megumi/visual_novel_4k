@@ -1,9 +1,12 @@
-from pprint import pprint
-from PIL import Image
 import moderngl,struct
 import numpy as np
-import os
 from parser import Parser
+import moderngl
+import numpy as np
+import struct
+
+from parser import Parser
+
 
 class Shader():
     def __init__(self, width, height, context, algos=['yuv.glsl','ACNet.glsl','rgb.glsl']):
@@ -90,7 +93,8 @@ class Shader():
                 self.vao_list.append(vao)
                 for t in prog.in_text:
                     name = p.texture_name_list[t]
-                    try: program[name] = tex_num + t
+                    try: 
+                        program[name] = tex_num + t
                     except: pass
                 self.fbo_use.append(prog.out_text + tex_num)
             tex_num += len(p.texture_name_list)
@@ -110,7 +114,8 @@ class Shader():
     def apply(self,bound):
         w,h = self.width,self.height
         x1,y1,x2,y2 = bound
-        x1,y1,x2,y2 = max(x1-6,0),h-max(y1-6,0),min(x2+6,w),h-min(y2+6,h)
+        padding = 8
+        x1,y1,x2,y2 = max(x1-padding,0),h-max(y1-padding,0),min(x2+padding,w),h-min(y2+padding,h)
         self.vbo.write(np.array([
                     # x    y     u  v
                     2*x1/w-1, 1-2*y2/h,  x1/w, 1-y2/h,  # lower left

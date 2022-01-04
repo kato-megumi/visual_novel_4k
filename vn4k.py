@@ -129,14 +129,15 @@ class Event(object):
         for e in pygame.event.get():
             seen_events = 1
             if e.type == QUIT:
-                alive = 0
-                app_name = app.split('/')[-1]
-                os.system("kill -9 `pgrep -i xvfb`")
-                os.system("kill -9 `pgrep "+app_name+"`")
-                os.system("killall "+app_name)
-                print(app)
-                reactor.stop()
-                return 0
+                pass
+                # alive = 0
+                # app_name = app.split('/')[-1]
+                # os.system("kill -9 `pgrep -i xvfb`")
+                # os.system("kill -9 `pgrep "+app_name+"`")
+                # os.system("killall "+app_name)
+                # print(app)
+                # reactor.stop()
+                # return 0
             if self.protocol is not None:
                 if e.type == KEYDOWN:
                     if e.key in MODIFIERS:
@@ -232,7 +233,11 @@ def main():
     if opt.x4:
         s = Shader(w,h,ctx,algos=['yuv.glsl','ACNet.glsl','shaders/Anime4K_Upscale_CNN_M_x2_Denoise.glsl','rgb.glsl'])
     else:
-        s = Shader(w,h,ctx)
+        # s = Shader(w,h,ctx,algos=['yuv.glsl','shaders/Anime4K_Upscale_CNN_L_x2_Denoise.glsl','rgb.glsl'])
+        # s = Shader(w,h,ctx)
+        s = Shader(w,h,ctx,algos=['bgr.glsl',
+        # 'glsl/Restore/Anime4K_Restore_CNN_Soft_M.glsl',
+        'glsl/Upscale/Anime4K_Upscale_CNN_x2_L.glsl','nop.glsl'])
     v = Event()
     application = service.Application("rfb test") # create Application
     vncClient = internet.TCPClient('localhost', 5900, UpscaleFactory(v)) # create the service
@@ -243,12 +248,4 @@ def main():
     
 if __name__ == '__main__':
     main()
-'''
-cvt 1280 720                                             
-xrandr --newmode "1280x720_60.00"   74.50  1280 1344 1472 1664  720 723 728 748 -hsync +vsync
-xrandr --addmode DisplayPort-1 1280x720_60.00
-xrandr --addmode DisplayPort-1 1280x720_60.00 --output DisplayPort-1 --mode 1280x720_60.00 --right-of eDP
-x11vnc -display :0 -clip 1280x720+2560+0 -xrandr -forever -nonc -noxdamage -repeat 
 
-xrandr --auto
-'''
